@@ -3,10 +3,13 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"github.com/gorilla/mux"
+	_ "github.com/gorilla/mux"
 	"github.com/xuri/excelize/v2"
 	"log"
 	"net/http"
 	"strconv"
+	_ "strconv"
 )
 
 type GameData struct {
@@ -29,12 +32,30 @@ func main() {
 	addData(mygameDatabase)
 	addGameData(mygameDatabase)
 
+	r := mux.NewRouter()
+	r.HandleFunc("/", handlePost).Methods("POST")
+	r.HandleFunc("/", handleGet).Methods("GET")
+
+	srv := &http.Server{
+		Addr:    ":8080",
+		Handler: r,
+	}
+	srv.ListenAndServe()
+
 }
 
 func handleRequest(w http.ResponseWriter, r *http.Request) {
 	gamedata := GameData{}
 	w.WriteHeader(http.StatusCreated)
 	w.Header().Set("Content-Type", "application/json")
+}
+
+func handlePost(w http.ResponseWriter, req *http.Request) {
+	fmt.Fprintf(w, "post\n")
+}
+
+func handleGet(w http.ResponseWriter, req *http.Request) {
+	fmt.Fprintf(w, "get\n")
 }
 
 func rows() string {
